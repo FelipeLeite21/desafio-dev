@@ -135,3 +135,52 @@ export const readPlantaById = async (req: Request, res: Response) => {
     }
 };
 
+export const updatePlanta = async (req: Request, res: Response) => {
+    try {
+        const id = lerId(req.params.id);
+        if (id === null) {
+            return res.status(400).json({ message: "id deve ser um inteiro maior que zero" });
+        }
+
+        const existente = await PlantaRepository.findPlantaById(id);
+        if (!existente) {
+            return res.status(404).json({ message: "Planta não encontrada" });
+        }
+
+        const erro = validarPlanta(req.body, false);
+        if (erro) {
+            return res.status(400).json({ message: erro });
+        }
+
+        const dados = montarDados(req.body);
+        if (Object.values(dados).every((valor) => valor === undefined)) {
+            return res.status(400).json({ message: "Envie ao menos um campo para editar" });
+        }
+
+        const planta = await PlantaRepository.updatePlanta(id, dados);
+        return res.status(200).json(planta);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Erro ao atualizar planta" });
+    }
+};
+
+export const deletePlanta = async (req: Request, res: Response) => {
+    try {
+        const id = lerId(req.params.id);
+        if (id === null) {
+            return res.status(400).json({ message: "id deve ser um inteiro maior que zero" });
+        }
+
+        const existente = await PlantaRepository.findPlantaById(id);
+        if (!existente) {
+            return res.status(404).json({ message: "Planta não encontrada" });
+        }
+
+        await PlantaRepository.deletePlanta(id);
+        return res.status(204).send();
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Erro ao deletar planta" });
+    }
+};
