@@ -15,4 +15,6 @@ routes.get("/users/:id", UserController.readUserById);
 routes.patch("/users/:id", UserController.updateUser);
 routes.delete("/users/:id", UserController.deleteUser);
 routes.post("/plantas", PlantaController.createPlanta);
+routes.get("/plantas", PlantaController.readAllPlantas);
+routes.get("/plantas/:id", PlantaController.readPlantaById);
 export default routes;

@@ -88,3 +88,50 @@ export const createPlanta = async (req: Request, res: Response) => {
         return res.status(500).json({ message: "Erro ao criar planta" });
     }
 };
+
+export const readAllPlantas = async (req: Request, res: Response) => {
+    try {
+        const { luminosidade, petFriendly } = req.query;
+        const filtros: { luminosidade?: Luminosidade; petFriendly?: boolean } = {};
+
+        if (luminosidade !== undefined) {
+            if (!isLuminosidade(luminosidade)) {
+                return res.status(400).json({ message: "luminosidade deve ser SOMBRA, MEIA_SOMBRA ou SOL_PLENO" });
+            }
+            filtros.luminosidade = luminosidade;
+        }
+
+        if (petFriendly !== undefined) {
+            if (petFriendly !== "true" && petFriendly !== "false") {
+                return res.status(400).json({ message: "petFriendly deve ser true ou false" });
+            }
+            filtros.petFriendly = petFriendly === "true";
+        }
+
+        const plantas = await PlantaRepository.findAllPlantas(filtros);
+        return res.status(200).json(plantas);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Erro ao buscar plantas" });
+    }
+};
+
+export const readPlantaById = async (req: Request, res: Response) => {
+    try {
+        const id = lerId(req.params.id);
+        if (id === null) {
+            return res.status(400).json({ message: "id deve ser um inteiro maior que zero" });
+        }
+
+        const planta = await PlantaRepository.findPlantaById(id);
+        if (!planta) {
+            return res.status(404).json({ message: "Planta não encontrada" });
+        }
+
+        return res.status(200).json(planta);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Erro ao buscar planta" });
+    }
+};
+
